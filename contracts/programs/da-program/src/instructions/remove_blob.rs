@@ -1,20 +1,19 @@
-use std::collections::BTreeMap;
-
 use anchor_lang::prelude::*;
 
 use crate::da::blob_storage::BlobStorage;
+use crate::common::Hash;
 
 /// Remove blobs from blob storage.
 ///
 /// Remove a specific blob if its hash is given.
 /// Remove all blobs in other case.
-pub fn remove_blob<'info>(ctx: Context<RemoveBlob>, opt_hash: Option<[u8; 32]>) -> Result<()> {
+pub fn remove_blob<'info>(ctx: Context<RemoveBlob>, opt_hash: Option<Hash>) -> Result<()> {
     let blob_storage: &mut Account<BlobStorage> = &mut ctx.accounts.blob_storage;
 
     if let Some(hash) = opt_hash {
-        blob_storage.blobs.remove(&hash);
+        blob_storage.remove(&hash);
     } else {
-        blob_storage.blobs = BTreeMap::new();
+        blob_storage.clear();
     }
 
     Ok(())

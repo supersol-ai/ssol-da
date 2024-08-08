@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+pub type Hash = [u8; 32];
+
 /// Represents an individual blob of data for rollup.
 #[account]
 #[derive(Default, Debug)]
@@ -8,7 +10,7 @@ pub struct Blob {
     ///
     /// We currently use Merkle root for simplicity.
     /// TODO: Migrate to hash of rollup.
-    pub hash: [u8; 32],
+    pub hash: Hash,
     /// Total number of blobs that make up the complete rollup.
     pub num_blobs: u64,
     /// Postion of this blob in the sequence of blob that form the entire rollup.

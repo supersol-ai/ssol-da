@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 
 use crate::constant::BLOB_SIZE;
-use crate::da::{accounts::Blob, blob_storage::BlobStorage, block_root::BlockRoot};
+use crate::da::{blob_storage::BlobStorage, block_root::BlockRoot};
 use crate::error::ErrorCode;
+use crate::common::*;
 
 /// Insert blob data on blob storage
 ///
@@ -18,7 +19,27 @@ pub fn insert_blob<'info>(ctx: Context<InsertBlob>, bump: u8, blob: Blob) -> Res
 
     let hash = blob.hash.clone();
 
-    /// TODO: complete the insertion logic
+    blob_storage.update_merkle_tree(blob);
+
+    if let Some(merkle_root) = blob_storage.get_merkle_root(&hash) {
+        msg!(
+            "entire rollup with hash: {:?} are completed with root {:?}",
+            hash,
+            merkle_root,
+        );
+
+        block_root.update_root(&merkle_root, current_slot);
+
+        msg!(
+            "block root for slot {}, blob root: {:?}, combined root: {:?}",
+            current_slot,
+            merkle_root,
+            block_root.hash,
+        );
+
+        blob_storage.remove(&hash);
+    }
+    
     Ok(())
 }
 
